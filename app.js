@@ -16,24 +16,18 @@ var snakeArray = [
 ];
 let timer;
 let directionNumber = 0;
-
+let maxEatenApple;
 let score = 0;
-let maxEatenApple = localStorage.getItem("maxEatenApple");
 let gameSpeed = 50;
 
 body.addEventListener('keydown', function (e) {
 
-
     if (e.key === "r") {
         document.location.reload();
     }
-    else if (e.key === "ArrowUp" && (directionNumber !== 1 && directionNumber !== 2 && directionNumber !== 6)) {
-        if (directionNumber === 0) {
-            directionNumber = 1;
-            startGame();
-        }
 
-        directionNumber = 1;
+    else if (e.key === "ArrowUp" && (directionNumber !== 1 && directionNumber !== 2 && directionNumber !== 6 && directionNumber !== 0)) {
+        directionNumber = 1;    
     }
 
     else if (e.key === "ArrowDown" && (directionNumber !== 1 && directionNumber !== 2 && directionNumber !== 6)) {
@@ -87,6 +81,7 @@ function decidingCreation() {
     else if (directionNumber === 4) {
         lastX += 10;
     }
+
     newSegment(firstX, firstY, lastX, lastY);
     snakeDrawer();
 }
@@ -106,7 +101,6 @@ function snakeDrawer() {
     let prevX = snakeArray[0][0];
     let prevY = snakeArray[0][1];
     ctx.lineJoin = "round";
-    ctx.fillStyle = "gray"
     ctx.beginPath();
     ctx.moveTo(snakeArray[0][2], snakeArray[0][3]);
     ctx.lineWidth = 10;
@@ -114,20 +108,19 @@ function snakeDrawer() {
     for (let i = 0; i < snakeArray.length; i++) {
 
         if (Math.abs(prevX - snakeArray[i][0]) < 11 && Math.abs(prevY - snakeArray[i][1]) < 11) {
-            ctx.lineTo(snakeArray[i][0], snakeArray[i][1]);
-            prevX = snakeArray[i][0];
-            prevY = snakeArray[i][1];
+            ctx.lineTo(snakeArray[i][0], snakeArray[i][1]);   
         } else {
             ctx.stroke();
             ctx.lineJoin = "round";
             ctx.beginPath();
             ctx.moveTo(snakeArray[i][2], snakeArray[i][3]);
             ctx.lineWidth = 10;
-            prevX = snakeArray[i][0];
-            prevY = snakeArray[i][1];
         }
 
+        prevX = snakeArray[i][0];
+        prevY = snakeArray[i][1];
     }
+
     ctx.stroke();
     scoreTable();
     isGameFinished();
@@ -135,8 +128,8 @@ function snakeDrawer() {
 
 function randomAppleCreator() {
 
-    centerX = Math.ceil(Math.random() * canvasWidth-20 + 5);
-    centerY = Math.ceil(Math.random() * canvasHeight-20 + 5);
+    centerX = Math.ceil(Math.random() * (canvasWidth - 20) + 5);
+    centerY = Math.ceil(Math.random() * (canvasHeight - 20) + 5);
     if(snakeLocation(centerX, centerY)){
         randomAppleCreator();
     }
@@ -149,7 +142,7 @@ function canvasPosition() {
 
     canvas.setAttribute("height", `${canvasHeight}`);
     canvas.setAttribute("width", `${canvasWidth}`);
-    canvas.setAttribute("style", "border:1px dotted black");
+    canvas.setAttribute("style", "border:5px dotted black");
     canvas.style.top = "20%";
     canvas.style.left = "30%";
     canvas.style.position = "absolute";
@@ -157,7 +150,6 @@ function canvasPosition() {
 
     ctx.lineJoin = "round";
     ctx.beginPath();
-    ctx.color = "red"
     ctx.moveTo(snakeArray[0][0], snakeArray[0][1]);
     ctx.lineTo(snakeArray[0][2], snakeArray[0][3]);
     ctx.lineTo(snakeArray[1][2], snakeArray[1][3]);
@@ -293,7 +285,7 @@ function isGameFinished() {
 
     if (snakeLocation(snakeHeadX, snakeHeadY)) {
         clearInterval(timer);
-        directionNumber = 0;
+        directionNumber = 6;
 
         if(maxEatenApple < score) {
             setLocalStorage(score);
@@ -316,6 +308,12 @@ function snakeLocation(locationX, locationY) {
 
 function scoreTable(){
 
+    if(localStorage.getItem("maxEatenApple") === null){
+        maxEatenApple = 0;
+    } else {
+        maxEatenApple = localStorage.getItem("maxEatenApple");
+    }
+
     ctx.font = "20px sanserif";
     ctx.textAlign = "left";
     ctx.fillStyle = "brown"
@@ -331,7 +329,7 @@ function scoreTable(){
 function fasterGame(){
 
     if(score % 10 === 0){
-        gameSpeed /= 2
+        gameSpeed = 2 * gameSpeed / 3
         clearInterval(timer);
         timer = setInterval(decidingCreation, gameSpeed);
     }
