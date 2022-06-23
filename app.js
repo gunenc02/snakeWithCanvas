@@ -18,15 +18,16 @@ let timer;
 let directionNumber = 0;
 
 let score = 0;
-let gameSpeed = 400;
+let maxEatenApple = localStorage.getItem("maxEatenApple");
+let gameSpeed = 50;
 
 body.addEventListener('keydown', function (e) {
 
 
-    if (directionNumber !== 0 && directionNumber !== 1 && directionNumber !== 2 && directionNumber !== 3 && directionNumber !== 4) {
-        return
+    if (e.key === "r") {
+        document.location.reload();
     }
-    else if (e.key === "ArrowUp" && (directionNumber !== 1 && directionNumber !== 2)) {
+    else if (e.key === "ArrowUp" && (directionNumber !== 1 && directionNumber !== 2 && directionNumber !== 6)) {
         if (directionNumber === 0) {
             directionNumber = 1;
             startGame();
@@ -35,7 +36,7 @@ body.addEventListener('keydown', function (e) {
         directionNumber = 1;
     }
 
-    else if (e.key === "ArrowDown" && (directionNumber !== 1 && directionNumber !== 2)) {
+    else if (e.key === "ArrowDown" && (directionNumber !== 1 && directionNumber !== 2 && directionNumber !== 6)) {
         if (directionNumber === 0) {
             directionNumber = 2;
             startGame();
@@ -44,7 +45,7 @@ body.addEventListener('keydown', function (e) {
         directionNumber = 2;
     }
 
-    else if (e.key === "ArrowLeft" && (directionNumber !== 3 && directionNumber !== 4)) {
+    else if (e.key === "ArrowLeft" && (directionNumber !== 3 && directionNumber !== 4 && directionNumber !== 6)) {
         if (directionNumber === 0) {
             directionNumber = 3;
             startGame();
@@ -53,7 +54,7 @@ body.addEventListener('keydown', function (e) {
         directionNumber = 3;
     }
 
-    else if (e.key === "ArrowRight" && (directionNumber !== 3 && directionNumber !== 4)) {
+    else if (e.key === "ArrowRight" && (directionNumber !== 3 && directionNumber !== 4 && directionNumber !== 6)) {
         if (directionNumber === 0) {
             directionNumber = 4;
             startGame();
@@ -95,6 +96,7 @@ function snakeDrawer() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     if (isAppleEaten()) {
         randomAppleCreator();
+        fasterGame();
     } else {
         appleCreator();
     }
@@ -127,13 +129,14 @@ function snakeDrawer() {
 
     }
     ctx.stroke();
+    scoreTable();
     isGameFinished();
 }
 
 function randomAppleCreator() {
 
-    centerX = Math.ceil(Math.random() * canvasWidth-10 + 5);
-    centerY = Math.ceil(Math.random() * canvasHeight-10 + 5);
+    centerX = Math.ceil(Math.random() * canvasWidth-20 + 5);
+    centerY = Math.ceil(Math.random() * canvasHeight-20 + 5);
     if(snakeLocation(centerX, centerY)){
         randomAppleCreator();
     }
@@ -162,16 +165,8 @@ function canvasPosition() {
     ctx.lineWidth = 10;
     ctx.stroke();
 
-    ctx.font = "20px sanserif";
-    ctx.textAlign = "left";
-    ctx.fillStyle = "brown"
-    ctx.fillText("Score: " + 20, 50);
+    scoreTable();
 
-    ctx.font = "20px sanserif";
-    ctx.textAlign = "right";
-    ctx.fillStyle = "brown";
-    ctx.fillText(`Max Score: ${maxEatenApple}` + 20, 50);
-    
 }
 
 function appleCreator() {
@@ -196,8 +191,6 @@ function newSegment(firstX, firstY, lastX, lastY) {
         positionFormatter();
     }
 
-
-
 }
 
 function startGame() {
@@ -208,6 +201,7 @@ function startGame() {
 function isAppleEaten() {
 
     if (Math.abs(snakeArray[0][2] - centerX) <= 8 && Math.abs(snakeArray[0][3] - centerY) <= 8) {
+        score++;
         grow();
         return true;
     }
@@ -300,6 +294,12 @@ function isGameFinished() {
     if (snakeLocation(snakeHeadX, snakeHeadY)) {
         clearInterval(timer);
         directionNumber = 0;
+
+        if(maxEatenApple < score) {
+            setLocalStorage(score);
+        }
+
+        gameOverTable();
         
     }
 }
@@ -314,3 +314,44 @@ function snakeLocation(locationX, locationY) {
     return false;
 }
 
+function scoreTable(){
+
+    ctx.font = "20px sanserif";
+    ctx.textAlign = "left";
+    ctx.fillStyle = "brown"
+    ctx.fillText(`Score: ${score}`, 20, 30);
+
+    ctx.font = "20px sanserif";
+    ctx.textAlign = "right";
+    ctx.fillStyle = "brown";
+    ctx.fillText(`Max Score: ${maxEatenApple}`, 770, 30);
+
+}
+
+function fasterGame(){
+
+    if(score % 10 === 0){
+        gameSpeed /= 2
+        clearInterval(timer);
+        timer = setInterval(decidingCreation, gameSpeed);
+    }
+
+}
+
+function gameOverTable(){
+
+    ctx.font = "100px sanserif";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "brown"
+    ctx.fillText(`GAME OVER`, 400, 225);
+
+    ctx.font = "20px sanserif";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "brown"
+    ctx.fillText(`press R to try again`, 400, 325);
+
+}
+
+function setLocalStorage(score){
+    localStorage.setItem("maxEatenApple", `${score}`)
+}
