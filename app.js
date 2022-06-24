@@ -6,57 +6,54 @@ let startX = 100;
 let startY = 50;
 let endX = 200;
 let endY = 50;
-
-let canvasHeight = 450;
+let playableCanvasHeightStart = 100;
+let playableCanvasHeight = 459
+let canvasHeight = 550;
 let canvasWidth = 800;
 var snakeArray = [
-    [20, 20, 20, 30],
-    [20, 30, 20, 40],
-    [20, 40, 20, 50]
+    [20, 140, 20, 150, 2],
+    [20, 130, 20, 140, 2],
+    [20, 120, 20, 130, 2]
 ];
+
 let timer;
 let directionNumber = 0;
 let maxEatenApple;
 let score = 0;
-let gameSpeed = 50;
+let gameSpeed = 100;
+let isDirectionSelectable = true;
 
 body.addEventListener('keydown', function (e) {
 
-    if (e.key === "r") {
+    if (e.key === "r" && directionNumber === 6) {
         document.location.reload();
     }
+    if (isDirectionSelectable) {
 
-    else if (e.key === "ArrowUp" && (directionNumber !== 1 && directionNumber !== 2 && directionNumber !== 6 && directionNumber !== 0)) {
-        directionNumber = 1;    
-    }
-
-    else if (e.key === "ArrowDown" && (directionNumber !== 1 && directionNumber !== 2 && directionNumber !== 6)) {
-        if (directionNumber === 0) {
-            directionNumber = 2;
+        if (directionNumber === 0 && (e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight")) {
             startGame();
         }
 
-        directionNumber = 2;
-    }
-
-    else if (e.key === "ArrowLeft" && (directionNumber !== 3 && directionNumber !== 4 && directionNumber !== 6)) {
-        if (directionNumber === 0) {
-            directionNumber = 3;
-            startGame();
+        if (e.key === "ArrowUp" && (directionNumber !== 1 && directionNumber !== 2 && directionNumber !== 6 && directionNumber !== 0)) {
+            directionNumberChanger(1);
+            isDirectionSelectable = false;
         }
 
-        directionNumber = 3;
-    }
-
-    else if (e.key === "ArrowRight" && (directionNumber !== 3 && directionNumber !== 4 && directionNumber !== 6)) {
-        if (directionNumber === 0) {
-            directionNumber = 4;
-            startGame();
+        else if (e.key === "ArrowDown" && (directionNumber !== 1 && directionNumber !== 2 && directionNumber !== 6)) {
+            directionNumberChanger(2);
+            isDirectionSelectable = false;
         }
 
-        directionNumber = 4;
-    }
+        else if (e.key === "ArrowLeft" && (directionNumber !== 3 && directionNumber !== 4 && directionNumber !== 6)) {
+            directionNumberChanger(3);
+            isDirectionSelectable = false;
+        }
 
+        else if (e.key === "ArrowRight" && (directionNumber !== 3 && directionNumber !== 4 && directionNumber !== 6)) {
+            directionNumberChanger(4);
+            isDirectionSelectable = false;
+        }
+    }
 });
 
 function decidingCreation() {
@@ -82,7 +79,7 @@ function decidingCreation() {
         lastX += 10;
     }
 
-    newSegment(firstX, firstY, lastX, lastY);
+    newSegment(firstX, firstY, lastX, lastY, directionNumber);
     snakeDrawer();
 }
 
@@ -108,7 +105,7 @@ function snakeDrawer() {
     for (let i = 0; i < snakeArray.length; i++) {
 
         if (Math.abs(prevX - snakeArray[i][0]) < 11 && Math.abs(prevY - snakeArray[i][1]) < 11) {
-            ctx.lineTo(snakeArray[i][0], snakeArray[i][1]);   
+            ctx.lineTo(snakeArray[i][0], snakeArray[i][1]);
         } else {
             ctx.stroke();
             ctx.lineJoin = "round";
@@ -124,13 +121,16 @@ function snakeDrawer() {
     ctx.stroke();
     scoreTable();
     isGameFinished();
+
+    isDirectionSelectable = true;
 }
 
 function randomAppleCreator() {
 
     centerX = Math.ceil(Math.random() * (canvasWidth - 20) + 5);
-    centerY = Math.ceil(Math.random() * (canvasHeight - 20) + 5);
-    if(snakeLocation(centerX, centerY)){
+    centerY = Math.ceil(Math.random() * (playableCanvasHeight - 20) + 5);
+    centerY += playableCanvasHeightStart;
+    if (snakeLocation(centerX, centerY, 15)) {
         randomAppleCreator();
     }
 
@@ -142,19 +142,23 @@ function canvasPosition() {
 
     canvas.setAttribute("height", `${canvasHeight}`);
     canvas.setAttribute("width", `${canvasWidth}`);
-    canvas.setAttribute("style", "border:5px dotted black");
+    canvas.setAttribute("style", "border:5px solid black");
+
     canvas.style.top = "20%";
     canvas.style.left = "30%";
     canvas.style.position = "absolute";
-    canvas.style.backgroundColor = "green"
+    canvas.style.backgroundColor = "green";
+
+    ctx.beginPath();
 
     ctx.lineJoin = "round";
-    ctx.beginPath();
-    ctx.moveTo(snakeArray[0][0], snakeArray[0][1]);
-    ctx.lineTo(snakeArray[0][2], snakeArray[0][3]);
-    ctx.lineTo(snakeArray[1][2], snakeArray[1][3]);
-    ctx.lineTo(snakeArray[2][2], snakeArray[2][3]);
     ctx.lineWidth = 10;
+
+    ctx.moveTo(snakeArray[0][2], snakeArray[0][3]);
+    ctx.lineTo(snakeArray[0][0], snakeArray[0][1]);
+    ctx.lineTo(snakeArray[1][0], snakeArray[1][1]);
+    ctx.lineTo(snakeArray[2][0], snakeArray[2][1]);
+
     ctx.stroke();
 
     scoreTable();
@@ -169,25 +173,21 @@ function appleCreator() {
     ctx.fill();
 }
 
-function newSegment(firstX, firstY, lastX, lastY) {
+function newSegment(firstX, firstY, lastX, lastY, directionNumber) {
 
-    let newSegment = [0, 0, 0, 0];
+    let newSegment = [0, 0, 0, 0, 0];
     newSegment[0] = firstX;
     newSegment[1] = firstY;
     newSegment[2] = lastX;
     newSegment[3] = lastY;
+    newSegment[4] = directionNumber;
 
     snakeArray.unshift(newSegment);
 
-    if (lastX < 0 || lastX > canvasWidth || lastY < 0 || lastY > canvasHeight) {
+    if (lastX < 0 || lastX > canvasWidth || lastY < playableCanvasHeightStart || lastY > canvasHeight) {
         positionFormatter();
     }
 
-}
-
-function startGame() {
-
-    timer = setInterval(decidingCreation, gameSpeed);
 }
 
 function isAppleEaten() {
@@ -203,38 +203,35 @@ function isAppleEaten() {
 
 function grow() {
 
-    if (snakeArray[snakeArray.length - 1][0] - snakeArray[snakeArray.length - 1][2] == 0 &&
-        snakeArray[snakeArray.length - 1][3] - snakeArray[snakeArray.length - 1][1] < 0) {
+    let lastIndex = snakeArray.length - 1;
+    let newSnakeSegment = [0, 0, 0, 0, 0];
+    newSnakeSegment[0] = snakeArray[lastIndex][0];
+    newSnakeSegment[1] = snakeArray[lastIndex][1];
+    newSnakeSegment[2] = snakeArray[lastIndex][2];
+    newSnakeSegment[3] = snakeArray[lastIndex][3];
+    newSnakeSegment[4] = snakeArray[lastIndex][4];
 
-        let newSnakeSegment = [snakeArray[snakeArray.length - 1][0], snakeArray[snakeArray.length - 1][1] + 20,
-        snakeArray[snakeArray.length - 1][2], snakeArray[snakeArray.length - 1][3]];
-        snakeArray.push(newSnakeSegment);
+    if (snakeArray[lastIndex][4] === 1) {
 
+        newSnakeSegment[1] += 10
     }
 
-    else if (snakeArray[snakeArray.length - 1][0] - snakeArray[snakeArray.length - 1][2] == 0 &&
-        snakeArray[snakeArray.length - 1][3] - snakeArray[snakeArray.length - 1][1] > 0) {
+    else if (snakeArray[lastIndex - 1][4] === 2) {
 
-        let newSnakeSegment = [snakeArray[snakeArray.length - 1][0], snakeArray[snakeArray.length - 1][1] - 20,
-        snakeArray[snakeArray.length - 1][2], snakeArray[snakeArray.length - 1][3]];
-        snakeArray.push(newSnakeSegment);
+        newSnakeSegment[1] -= 10;
     }
 
-    else if (snakeArray[snakeArray.length - 1][0] - snakeArray[snakeArray.length - 1][2] < 0 &&
-        snakeArray[snakeArray.length - 1][3] - snakeArray[snakeArray.length - 1][1] == 0) {
+    else if (snakeArray[lastIndex][4] === 3) {
 
-        let newSnakeSegment = [snakeArray[snakeArray.length - 1][0] - 20, snakeArray[snakeArray.length - 1][1],
-        snakeArray[snakeArray.length - 1][2], snakeArray[snakeArray.length - 1][3]];
-        snakeArray.push(newSnakeSegment);
+        newSnakeSegment[0] += 10;
     }
 
-    else if (snakeArray[snakeArray.length - 1][0] - snakeArray[snakeArray.length - 1][2] > 0 &&
-        snakeArray[snakeArray.length - 1][3] - snakeArray[snakeArray.length - 1][1] == 0) {
+    else if (snakeArray[lastIndex][4] === 4) {
 
-        let newSnakeSegment = [snakeArray[snakeArray.length - 1][0] + 20, snakeArray[snakeArray.length - 1][1] + 10,
-        snakeArray[snakeArray.length - 1][2], snakeArray[snakeArray.length - 1][3]];
-        snakeArray.push(newSnakeSegment);
+        newSnakeSegment[0] -= 10;
     }
+    snakeArray.push(newSnakeSegment);
+
 
 }
 
@@ -258,12 +255,12 @@ function positionFormatter() {
     }
 
     else if (snakeArray[0][3] > canvasHeight) {
-        lastY = 10;
-        firstY = 0;
+        lastY = playableCanvasHeightStart + 10;
+        firstY = playableCanvasHeightStart;
 
     }
 
-    else if (snakeArray[0][3] < 0) {
+    else if (snakeArray[0][3] < playableCanvasHeightStart) {
         lastY = canvasHeight - 10;
         firstY = canvasHeight;
 
@@ -272,43 +269,45 @@ function positionFormatter() {
     newSegment(firstX, firstY, lastX, lastY);
 }
 
-window.onload = () => {
-
-    canvasPosition();
-    randomAppleCreator();
-}
-
 function isGameFinished() {
 
-    snakeHeadX = snakeArray[0][2];
-    snakeHeadY = snakeArray[0][3];
+    let snakeHeadX = snakeArray[0][2];
+    let snakeHeadY = snakeArray[0][3];
 
-    if (snakeLocation(snakeHeadX, snakeHeadY)) {
+    if (snakeLocation(snakeHeadX, snakeHeadY, 0)) {
         clearInterval(timer);
         directionNumber = 6;
 
-        if(maxEatenApple < score) {
+        if (maxEatenApple < score) {
             setLocalStorage(score);
         }
 
         gameOverTable();
-        
+
     }
 }
 
-function snakeLocation(locationX, locationY) {
+function snakeLocation(locationX, locationY, difference) {
 
     for (let i = 0; i < snakeArray.length; i++) {
-        if (snakeArray[i][0] === locationX && snakeArray[i][1] === locationY) {
-            return true;
+        if (difference === 0) {
+            if (snakeArray[i][0] === locationX && snakeArray[i][1] === locationY) {
+                return true;
+            }
+        }
+        else{
+            if(Math.abs( snakeArray[i][0] - locationX ) > difference && Math.abs( snakeArray[i][1] - locationY ) > difference){
+                return true;
+            }           
         }
     }
+
     return false;
 }
 
-function scoreTable(){
+function scoreTable() {
 
-    if(localStorage.getItem("maxEatenApple") === null){
+    if (localStorage.getItem("maxEatenApple") === null) {
         maxEatenApple = 0;
     } else {
         maxEatenApple = localStorage.getItem("maxEatenApple");
@@ -324,11 +323,17 @@ function scoreTable(){
     ctx.fillStyle = "brown";
     ctx.fillText(`Max Score: ${maxEatenApple}`, 770, 30);
 
+    ctx.beginPath();
+    ctx.lineWidth = 5;
+    ctx.moveTo(0, 92);
+    ctx.lineTo(800, 92);
+    ctx.stroke();
+
 }
 
-function fasterGame(){
+function fasterGame() {
 
-    if(score % 10 === 0){
+    if (score % 10 === 0) {
         gameSpeed = 2 * gameSpeed / 3
         clearInterval(timer);
         timer = setInterval(decidingCreation, gameSpeed);
@@ -336,7 +341,7 @@ function fasterGame(){
 
 }
 
-function gameOverTable(){
+function gameOverTable() {
 
     ctx.font = "100px sanserif";
     ctx.textAlign = "center";
@@ -350,6 +355,21 @@ function gameOverTable(){
 
 }
 
-function setLocalStorage(score){
+function setLocalStorage(score) {
     localStorage.setItem("maxEatenApple", `${score}`)
+}
+
+function directionNumberChanger(num) {
+    directionNumber = num;
+}
+
+function startGame() {
+
+    timer = setInterval(decidingCreation, gameSpeed);
+}
+
+window.onload = () => {
+
+    canvasPosition();
+    randomAppleCreator();
 }
