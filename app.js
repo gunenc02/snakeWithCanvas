@@ -6,8 +6,8 @@ let startX = 100;
 let startY = 50;
 let endX = 200;
 let endY = 50;
-let playableCanvasHeightStart = 100;
-let playableCanvasHeight = 459
+let playableCanvasHeightStart = 60;
+let playableCanvasHeight = 500
 let canvasHeight = 550;
 let canvasWidth = 800;
 var snakeArray = [
@@ -131,10 +131,10 @@ function randomAppleCreator() {
     centerY = Math.ceil(Math.random() * (playableCanvasHeight - 20) + 5);
     centerY += playableCanvasHeightStart;
     if (snakeLocation(centerX, centerY, 15)) {
+       appleCreator();
+    } else {
         randomAppleCreator();
-    }
-
-    appleCreator();
+    }    
 }
 
 
@@ -255,8 +255,8 @@ function positionFormatter() {
     }
 
     else if (snakeArray[0][3] > canvasHeight) {
-        lastY = playableCanvasHeightStart + 10;
-        firstY = playableCanvasHeightStart;
+        lastY = playableCanvasHeightStart + 5;
+        firstY = playableCanvasHeightStart - 5;
 
     }
 
@@ -289,23 +289,27 @@ function isGameFinished() {
 
 function snakeLocation(locationX, locationY, difference) {
 
-    for (let i = 0; i < snakeArray.length; i++) {
-        if (difference === 0) {
-            if (snakeArray[i][0] === locationX && snakeArray[i][1] === locationY) {
+    if(difference === 0){
+        for(let i = 0; i < snakeArray.length; i++){
+            if(snakeArray[i][0] === locationX && snakeArray[i][1] === locationY){
                 return true;
             }
         }
-        else{
-            if(Math.abs( snakeArray[i][0] - locationX ) > difference && Math.abs( snakeArray[i][1] - locationY ) > difference){
-                return true;
-            }           
-        }
+        return false;
     }
 
-    return false;
+    else{
+        for(let i = 0; i < snakeArray.length; i++){
+            if(Math.abs(snakeArray[i][0] - locationX) < difference && Math.abs(snakeArray[i][1] - locationY) < difference){
+                return false;
+            }
+        }
+        return true
+    }
 }
 
 function scoreTable() {
+
 
     if (localStorage.getItem("maxEatenApple") === null) {
         maxEatenApple = 0;
@@ -324,9 +328,9 @@ function scoreTable() {
     ctx.fillText(`Max Score: ${maxEatenApple}`, 770, 30);
 
     ctx.beginPath();
-    ctx.lineWidth = 5;
-    ctx.moveTo(0, 92);
-    ctx.lineTo(800, 92);
+    ctx.lineWidth = 3;
+    ctx.moveTo(0, 52);
+    ctx.lineTo(800, 52);
     ctx.stroke();
 
 }
