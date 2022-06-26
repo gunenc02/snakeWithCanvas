@@ -144,8 +144,9 @@ function canvasPosition() {
     canvas.setAttribute("width", `${canvasWidth}`);
     canvas.setAttribute("style", "border:5px solid black");
 
-    canvas.style.top = "20%";
-    canvas.style.left = "30%";
+    canvas.style.top = "50%";
+    canvas.style.left = "50%";
+    canvas.style.transform = "translate(-50%, -50%)"
     canvas.style.position = "absolute";
     canvas.style.backgroundColor = "green";
 
@@ -171,6 +172,7 @@ function appleCreator() {
     ctx.fillStyle = "red";
     ctx.arc(centerX, centerY, 5, 0, 2 * Math.PI);
     ctx.fill();
+    ctx.closePath();
 }
 
 function newSegment(firstX, firstY, lastX, lastY, directionNumber) {
