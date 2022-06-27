@@ -1,6 +1,8 @@
 let canvas = document.getElementById("gameBoard");
 let ctx = canvas.getContext("2d");
 let body = document.getElementById("body");
+body.style.backgroundImage = document.getElementById("frame");
+body.style.backgroundSize = "cover"
 
 let startX = 100;
 let startY = 50;
