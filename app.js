@@ -1,28 +1,28 @@
 let canvas = document.getElementById("gameBoard");
 let ctx = canvas.getContext("2d");
 let body = document.getElementById("body");
-body.style.backgroundImage = document.getElementById("frame");
-body.style.backgroundSize = "cover"
+
 
 let startX = 100;
 let startY = 50;
 let endX = 200;
 let endY = 50;
 let playableCanvasHeightStart = 60;
-let playableCanvasHeight = 500
-let canvasHeight = 550;
-let canvasWidth = 800;
+let playableCanvasHeight = 600
+let canvasHeight = 660;
+let canvasWidth = 1075;
 var snakeArray = [
-    [20, 140, 20, 150, 2],
-    [20, 130, 20, 140, 2],
-    [20, 120, 20, 130, 2]
+    [20, 220, 20, 270, 2],
+    [20, 170, 20, 220, 2],
+    [20, 120, 20, 170, 2]
 ];
-
+let centerX = 0;
+let centerY = 0;
 let timer;
 let directionNumber = 0;
 let maxEatenApple;
 let score = 0;
-let gameSpeed = 100;
+let gameSpeed = 200;
 let isDirectionSelectable = true;
 
 body.addEventListener('keydown', function (e) {
@@ -66,19 +66,19 @@ function decidingCreation() {
     let lastY = snakeArray[0][3];
 
     if (directionNumber === 1) {
-        lastY -= 10;
+        lastY -= 50;
     }
 
     else if (directionNumber === 2) {
-        lastY += 10;
+        lastY += 50;
     }
 
     else if (directionNumber === 3) {
-        lastX -= 10;
+        lastX -= 50;
     }
 
     else if (directionNumber === 4) {
-        lastX += 10;
+        lastX += 50;
     }
 
     newSegment(firstX, firstY, lastX, lastY, directionNumber);
@@ -88,6 +88,8 @@ function decidingCreation() {
 function snakeDrawer() {
 
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    let img = document.getElementById("canvasBackground");
+    ctx.drawImage(img,0,0);
     if (isAppleEaten()) {
         randomAppleCreator();
         fasterGame();
@@ -106,7 +108,7 @@ function snakeDrawer() {
 
     for (let i = 0; i < snakeArray.length; i++) {
 
-        if (Math.abs(prevX - snakeArray[i][0]) < 11 && Math.abs(prevY - snakeArray[i][1]) < 11) {
+        if (Math.abs(prevX - snakeArray[i][0]) < 51 && Math.abs(prevY - snakeArray[i][1]) < 51) {
             ctx.lineTo(snakeArray[i][0], snakeArray[i][1]);
         } else {
             ctx.stroke();
@@ -129,10 +131,10 @@ function snakeDrawer() {
 
 function randomAppleCreator() {
 
-    centerX = Math.ceil(Math.random() * (canvasWidth - 20) + 5);
-    centerY = Math.ceil(Math.random() * (playableCanvasHeight - 20) + 5);
+    centerX = Math.ceil(Math.random() * (canvasWidth - 60));
+    centerY = Math.ceil(Math.random() * (playableCanvasHeight - 60));
     centerY += playableCanvasHeightStart;
-    if (snakeLocation(centerX, centerY, 15)) {
+    if (snakeLocation(centerX, centerY, 75)) {
        appleCreator();
     } else {
         randomAppleCreator();
@@ -141,6 +143,7 @@ function randomAppleCreator() {
 
 
 function canvasPosition() {
+    
 
     canvas.setAttribute("height", `${canvasHeight}`);
     canvas.setAttribute("width", `${canvasWidth}`);
@@ -148,9 +151,11 @@ function canvasPosition() {
 
     canvas.style.top = "50%";
     canvas.style.left = "50%";
-    canvas.style.transform = "translate(-50%, -50%)"
+    canvas.style.transform = "translate(-50%, -55%)"
     canvas.style.position = "absolute";
-    canvas.style.backgroundColor = "green";
+
+    let img = document.getElementById("canvasBackground");
+    ctx.drawImage(img,0,0);
 
     ctx.beginPath();
 
@@ -170,11 +175,8 @@ function canvasPosition() {
 
 function appleCreator() {
 
-    ctx.beginPath();
-    ctx.fillStyle = "red";
-    ctx.arc(centerX, centerY, 5, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.closePath();
+    let img = document.getElementById("orange");
+    ctx.drawImage(img, centerX, centerY);
 }
 
 function newSegment(firstX, firstY, lastX, lastY, directionNumber) {
@@ -196,7 +198,7 @@ function newSegment(firstX, firstY, lastX, lastY, directionNumber) {
 
 function isAppleEaten() {
 
-    if (Math.abs(snakeArray[0][2] - centerX) <= 8 && Math.abs(snakeArray[0][3] - centerY) <= 8) {
+    if (snakeArray[0][2] - centerX > 0 && snakeArray[0][2] - centerX < 60  && snakeArray[0][3] - centerY > 0 &&  snakeArray[0][3] - centerY < 60) {
         score++;
         grow();
         return true;
@@ -217,22 +219,22 @@ function grow() {
 
     if (snakeArray[lastIndex][4] === 1) {
 
-        newSnakeSegment[1] += 10
+        newSnakeSegment[1] += 50;
     }
 
     else if (snakeArray[lastIndex - 1][4] === 2) {
 
-        newSnakeSegment[1] -= 10;
+        newSnakeSegment[1] -= 50;
     }
 
     else if (snakeArray[lastIndex][4] === 3) {
 
-        newSnakeSegment[0] += 10;
+        newSnakeSegment[0] += 50;
     }
 
     else if (snakeArray[lastIndex][4] === 4) {
 
-        newSnakeSegment[0] -= 10;
+        newSnakeSegment[0] -= 50;
     }
     snakeArray.push(newSnakeSegment);
 
@@ -247,25 +249,25 @@ function positionFormatter() {
     let lastY = snakeArray[0][3]
 
     if (snakeArray[0][2] > canvasWidth) {
-        lastX = 10;
+        lastX = 50;
         firstX = 0;
 
     }
 
     else if (snakeArray[0][2] < 0) {
-        lastX = canvasWidth - 10;
+        lastX = canvasWidth - 50;
         firstX = canvasWidth;
 
     }
 
     else if (snakeArray[0][3] > canvasHeight) {
-        lastY = playableCanvasHeightStart + 5;
-        firstY = playableCanvasHeightStart - 5;
+        lastY = playableCanvasHeightStart + 25;
+        firstY = playableCanvasHeightStart - 25;
 
     }
 
     else if (snakeArray[0][3] < playableCanvasHeightStart) {
-        lastY = canvasHeight - 10;
+        lastY = canvasHeight - 50;
         firstY = canvasHeight;
 
     }
@@ -329,12 +331,12 @@ function scoreTable() {
     ctx.font = "20px sanserif";
     ctx.textAlign = "right";
     ctx.fillStyle = "brown";
-    ctx.fillText(`Max Score: ${maxEatenApple}`, 770, 30);
+    ctx.fillText(`Max Score: ${maxEatenApple}`, 1040, 30);
 
     ctx.beginPath();
     ctx.lineWidth = 3;
     ctx.moveTo(0, 52);
-    ctx.lineTo(800, 52);
+    ctx.lineTo(1075, 52);
     ctx.stroke();
 
 }
@@ -354,12 +356,12 @@ function gameOverTable() {
     ctx.font = "100px sanserif";
     ctx.textAlign = "center";
     ctx.fillStyle = "brown"
-    ctx.fillText(`GAME OVER`, 400, 225);
+    ctx.fillText(`GAME OVER`, canvasWidth / 2, canvasHeight / 2 - 10);
 
     ctx.font = "20px sanserif";
     ctx.textAlign = "center";
     ctx.fillStyle = "brown"
-    ctx.fillText(`press R to try again`, 400, 325);
+    ctx.fillText(`press R to try again`, canvasWidth / 2, canvasHeight / 2 + 10);
 
 }
 
@@ -380,4 +382,22 @@ window.onload = () => {
 
     canvasPosition();
     randomAppleCreator();
+}
+
+function addingSnakeSprite() {
+
+    let img = document.getElementById("snakeSprite");
+
+    if(directionNumber === 1) {
+
+    }
+    else if(directionNumber === 2) {
+
+    }
+    else if(directionNumber === 3) {
+
+    }
+    else {
+        ctx.drawImage(img)
+    }
 }
