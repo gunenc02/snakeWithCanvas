@@ -9,12 +9,12 @@ let endX = 200;
 let endY = 50;
 let playableCanvasHeightStart = 60;
 let playableCanvasHeight = 600
-let canvasHeight = 660;
-let canvasWidth = 1075;
+let canvasHeight = 650;
+let canvasWidth = 1050;
 var snakeArray = [
-    [20, 220, 20, 270, 2],
-    [20, 170, 20, 220, 2],
-    [20, 120, 20, 170, 2]
+    [20, 200, 20, 250, 2],
+    [20, 150, 20, 200, 2],
+    [20, 100, 20, 150, 2]
 ];
 let centerX = 0;
 let centerY = 0;
@@ -22,8 +22,9 @@ let timer;
 let directionNumber = 0;
 let maxEatenApple;
 let score = 0;
-let gameSpeed = 200;
+let gameSpeed = 1000;
 let isDirectionSelectable = true;
+let prevDirection = 2;
 
 body.addEventListener('keydown', function (e) {
 
@@ -89,7 +90,7 @@ function snakeDrawer() {
 
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     let img = document.getElementById("canvasBackground");
-    ctx.drawImage(img,0,0);
+    ctx.drawImage(img, 0, 0);
     if (isAppleEaten()) {
         randomAppleCreator();
         fasterGame();
@@ -99,30 +100,7 @@ function snakeDrawer() {
 
     snakeArray.pop();
 
-    let prevX = snakeArray[0][0];
-    let prevY = snakeArray[0][1];
-    ctx.lineJoin = "round";
-    ctx.beginPath();
-    ctx.moveTo(snakeArray[0][2], snakeArray[0][3]);
-    ctx.lineWidth = 10;
-
-    for (let i = 0; i < snakeArray.length; i++) {
-
-        if (Math.abs(prevX - snakeArray[i][0]) < 51 && Math.abs(prevY - snakeArray[i][1]) < 51) {
-            ctx.lineTo(snakeArray[i][0], snakeArray[i][1]);
-        } else {
-            ctx.stroke();
-            ctx.lineJoin = "round";
-            ctx.beginPath();
-            ctx.moveTo(snakeArray[i][2], snakeArray[i][3]);
-            ctx.lineWidth = 10;
-        }
-
-        prevX = snakeArray[i][0];
-        prevY = snakeArray[i][1];
-    }
-
-    ctx.stroke();
+    addingSnakeSprite();
     scoreTable();
     isGameFinished();
 
@@ -135,15 +113,15 @@ function randomAppleCreator() {
     centerY = Math.ceil(Math.random() * (playableCanvasHeight - 60));
     centerY += playableCanvasHeightStart;
     if (snakeLocation(centerX, centerY, 75)) {
-       appleCreator();
+        appleCreator();
     } else {
         randomAppleCreator();
-    }    
+    }
 }
 
 
 function canvasPosition() {
-    
+
 
     canvas.setAttribute("height", `${canvasHeight}`);
     canvas.setAttribute("width", `${canvasWidth}`);
@@ -151,23 +129,17 @@ function canvasPosition() {
 
     canvas.style.top = "50%";
     canvas.style.left = "50%";
-    canvas.style.transform = "translate(-50%, -55%)"
+    canvas.style.transform = "translate(-50%, -50%)"
     canvas.style.position = "absolute";
 
     let img = document.getElementById("canvasBackground");
-    ctx.drawImage(img,0,0);
+    ctx.drawImage(img, 0, 0);
 
     ctx.beginPath();
 
     ctx.lineJoin = "round";
     ctx.lineWidth = 10;
-
-    ctx.moveTo(snakeArray[0][2], snakeArray[0][3]);
-    ctx.lineTo(snakeArray[0][0], snakeArray[0][1]);
-    ctx.lineTo(snakeArray[1][0], snakeArray[1][1]);
-    ctx.lineTo(snakeArray[2][0], snakeArray[2][1]);
-
-    ctx.stroke();
+    addingSnakeSprite();
 
     scoreTable();
 
@@ -198,7 +170,7 @@ function newSegment(firstX, firstY, lastX, lastY, directionNumber) {
 
 function isAppleEaten() {
 
-    if (snakeArray[0][2] - centerX > 0 && snakeArray[0][2] - centerX < 60  && snakeArray[0][3] - centerY > 0 &&  snakeArray[0][3] - centerY < 60) {
+    if (snakeArray[0][2] - centerX > 0 && snakeArray[0][2] - centerX < 60 && snakeArray[0][3] - centerY > 0 && snakeArray[0][3] - centerY < 60) {
         score++;
         grow();
         return true;
@@ -261,8 +233,8 @@ function positionFormatter() {
     }
 
     else if (snakeArray[0][3] > canvasHeight) {
-        lastY = playableCanvasHeightStart + 25;
-        firstY = playableCanvasHeightStart - 25;
+        lastY = playableCanvasHeightStart + 50;
+        firstY = playableCanvasHeightStart;
 
     }
 
@@ -295,18 +267,18 @@ function isGameFinished() {
 
 function snakeLocation(locationX, locationY, difference) {
 
-    if(difference === 0){
-        for(let i = 0; i < snakeArray.length; i++){
-            if(snakeArray[i][0] === locationX && snakeArray[i][1] === locationY){
+    if (difference === 0) {
+        for (let i = 0; i < snakeArray.length; i++) {
+            if (snakeArray[i][0] === locationX && snakeArray[i][1] === locationY) {
                 return true;
             }
         }
         return false;
     }
 
-    else{
-        for(let i = 0; i < snakeArray.length; i++){
-            if(Math.abs(snakeArray[i][0] - locationX) < difference && Math.abs(snakeArray[i][1] - locationY) < difference){
+    else {
+        for (let i = 0; i < snakeArray.length; i++) {
+            if (Math.abs(snakeArray[i][0] - locationX) < difference && Math.abs(snakeArray[i][1] - locationY) < difference) {
                 return false;
             }
         }
@@ -388,16 +360,73 @@ function addingSnakeSprite() {
 
     let img = document.getElementById("snakeSprite");
 
-    if(directionNumber === 1) {
+    for (let i = 0; i < snakeArray.length; i++) {
 
-    }
-    else if(directionNumber === 2) {
+        let cutPositionX = 50;
+        let cutPositionY = 0;
+        let longX = 50;
+        let longY = 50;
+        let degree = 0;
 
-    }
-    else if(directionNumber === 3) {
+        if (i === 0) {
+            cutPositionX = 0;
+        }
+        else if (i === snakeArray.length - 1) {
+            cutPositionX = 100;
+        }
+        else if (prevDirection !== snakeArray[i][4]) {
+            cutPositionX = 150;
+        }
 
+        ctx.save();
+        ctx.translate(snakeArray[i][0], snakeArray[i][1]);
+
+        if (prevDirection === snakeArray[i][4]) {
+
+            if (snakeArray[i][4] === 1) {
+
+                degree = 270 * Math.PI / 180;
+                ctx.rotate(degree);
+                prevDirection = snakeArray[i][4];
+            }
+            else if (snakeArray[i][4] === 2) {
+                degree = 90 * Math.PI / 180;
+                ctx.rotate(degree);
+                prevDirection = snakeArray[i][4];
+            }
+            else if (snakeArray[i][4] === 3) {
+
+                degree = Math.PI;
+                ctx.rotate(degree);
+                prevDirection = snakeArray[i][4];
+            }
+            else {
+                prevDirection = 4;
+            }
+
+        } else {
+
+            if((prevDirection === 1 && snakeArray[i][4] === 4) || (snakeArray[i][4] === 2 && prevDirection === 3)) {
+                prevDirection = snakeArray [i][4];
+            }
+            else if((prevDirection === 1 && snakeArray[i][4] === 3) || (snakeArray[i][4] === 2 && prevDirection === 4) ){
+                degree = 90 * Math.PI / 180;
+                ctx.rotate(degree);
+                prevDirection = snakeArray [i][4];
+            }
+            else if((prevDirection === 2 && snakeArray[i][4] === 4) || (snakeArray[i][4] === 1 && prevDirection === 3) ){
+                degree = 90 * Math.PI / 180;
+                ctx.rotate(degree);
+                prevDirection = snakeArray [i][4];
+            }
+            else if((prevDirection === 2 && snakeArray[i][4] === 3) || (snakeArray[i][4] === 1 && prevDirection === 4) ){
+                prevDirection = snakeArray [i][4];
+            }
+        }
+        ctx.drawImage(img, cutPositionX, cutPositionY, 50, 50, -25, -25, longX, longY);
+        ctx.restore();
     }
-    else {
-        ctx.drawImage(img)
-    }
+
+
+
 }
