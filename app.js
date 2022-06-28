@@ -22,7 +22,7 @@ let timer;
 let directionNumber = 0;
 let maxEatenApple;
 let score = 0;
-let gameSpeed = 1000;
+let gameSpeed = 2000;
 let isDirectionSelectable = true;
 let prevDirection = 2;
 
@@ -57,6 +57,7 @@ body.addEventListener('keydown', function (e) {
             isDirectionSelectable = false;
         }
     }
+    prevDirection = directionNumber;
 });
 
 function decidingCreation() {
@@ -359,14 +360,20 @@ window.onload = () => {
 function addingSnakeSprite() {
 
     let img = document.getElementById("snakeSprite");
+    prevDirection = snakeArray[snakeArray.length - 1][4];
+    
 
-    for (let i = 0; i < snakeArray.length; i++) {
+    for (let i = snakeArray.length - 1; 0 <= i; i--) {
 
         let cutPositionX = 50;
         let cutPositionY = 0;
         let longX = 50;
         let longY = 50;
         let degree = 0;
+        let rotationX = 0;
+        let rotationY = 0;
+        let snakecoordinateX = -25;
+        let snakeCoordinateY = -25;
 
         if (i === 0) {
             cutPositionX = 0;
@@ -379,9 +386,21 @@ function addingSnakeSprite() {
         }
 
         ctx.save();
-        ctx.translate(snakeArray[i][0], snakeArray[i][1]);
+        if(i === 0 && isDirectionSelectable == false){
+        
+            if(prevDirection === 1){rotationX = -25; rotationY = -25;}
+            else if(prevDirection === 2){rotationX = 25; rotationY = -25;}
+            else if(prevDirection === 3){rotationX = -25; rotationY = 25;}
+            else{rotationX = 25; rotationY = 25}
+            ctx.translate(snakeArray[i][0] + rotationX, snakeArray[i][1] + rotationY);
 
-        if (prevDirection === snakeArray[i][4]) {
+        } else {
+
+            ctx.translate(snakeArray[i][0] , snakeArray[i][1] );
+        }
+        
+
+        if (prevDirection === snakeArray[i][4] || i === 0) {
 
             if (snakeArray[i][4] === 1) {
 
@@ -415,18 +434,18 @@ function addingSnakeSprite() {
                 prevDirection = snakeArray [i][4];
             }
             else if((prevDirection === 2 && snakeArray[i][4] === 4) || (snakeArray[i][4] === 1 && prevDirection === 3) ){
-                degree = 90 * Math.PI / 180;
+                degree = 270 * Math.PI / 180;
                 ctx.rotate(degree);
                 prevDirection = snakeArray [i][4];
             }
             else if((prevDirection === 2 && snakeArray[i][4] === 3) || (snakeArray[i][4] === 1 && prevDirection === 4) ){
+                degree = 180 * Math.PI / 180;
+                ctx.rotate(degree);
                 prevDirection = snakeArray [i][4];
             }
         }
-        ctx.drawImage(img, cutPositionX, cutPositionY, 50, 50, -25, -25, longX, longY);
+        ctx.drawImage(img, cutPositionX, cutPositionY, 50, 50, snakecoordinateX, snakeCoordinateY, longX, longY);
         ctx.restore();
     }
-
-
-
+    
 }
