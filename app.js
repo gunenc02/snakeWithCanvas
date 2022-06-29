@@ -12,9 +12,9 @@ let playableCanvasHeight = 600
 let canvasHeight = 650;
 let canvasWidth = 1050;
 var snakeArray = [
-    [20, 200, 20, 250, 2],
-    [20, 150, 20, 200, 2],
-    [20, 100, 20, 150, 2]
+    [50, 200, 50, 250, 2],
+    [50, 150, 50, 200, 2],
+    [50, 100, 50, 150, 2]
 ];
 let centerX = 0;
 let centerY = 0;
@@ -24,7 +24,7 @@ let maxEatenApple;
 let score = 0;
 let gameSpeed = 2000;
 let isDirectionSelectable = true;
-let prevDirection = 2;
+let nextDirection = 2;
 
 body.addEventListener('keydown', function (e) {
 
@@ -57,16 +57,27 @@ body.addEventListener('keydown', function (e) {
             isDirectionSelectable = false;
         }
     }
-    prevDirection = directionNumber;
+    nextDirection = directionNumber;
 });
 
 function decidingCreation() {
 
-    let firstX = snakeArray[0][2];
-    let firstY = snakeArray[0][3];
-    let lastX = snakeArray[0][2];
-    let lastY = snakeArray[0][3];
+    let firstX;
+    let firstY;
+    let lastX;
+    let lastY;
 
+    if (snakeArray[0][4] !== directionNumber) {
+        firstX = snakeArray[0][0];
+        firstY = snakeArray[0][1];
+        lastX = snakeArray[0][0];
+        lastY = snakeArray[0][1];
+    } else {
+        firstX = snakeArray[0][2];
+        firstY = snakeArray[0][3];
+        lastX = snakeArray[0][2];
+        lastY = snakeArray[0][3];
+    }
     if (directionNumber === 1) {
         lastY -= 50;
     }
@@ -360,8 +371,8 @@ window.onload = () => {
 function addingSnakeSprite() {
 
     let img = document.getElementById("snakeSprite");
-    prevDirection = snakeArray[snakeArray.length - 1][4];
-    
+    nextDirection = snakeArray[snakeArray.length - 2][4];
+
 
     for (let i = snakeArray.length - 1; 0 <= i; i--) {
 
@@ -370,10 +381,11 @@ function addingSnakeSprite() {
         let longX = 50;
         let longY = 50;
         let degree = 0;
-        let rotationX = 0;
-        let rotationY = 0;
-        let snakecoordinateX = -25;
+        let snakeCoordinateX = -25;
         let snakeCoordinateY = -25;
+        if (i > 0) {
+            nextDirection = snakeArray[i - 1][4]
+        }
 
         if (i === 0) {
             cutPositionX = 0;
@@ -381,71 +393,75 @@ function addingSnakeSprite() {
         else if (i === snakeArray.length - 1) {
             cutPositionX = 100;
         }
-        else if (prevDirection !== snakeArray[i][4]) {
+        else if (nextDirection !== snakeArray[i][4]) {
             cutPositionX = 150;
         }
 
         ctx.save();
-        if(i === 0 && isDirectionSelectable == false){
-        
-            if(prevDirection === 1){rotationX = -25; rotationY = -25;}
-            else if(prevDirection === 2){rotationX = 25; rotationY = -25;}
-            else if(prevDirection === 3){rotationX = -25; rotationY = 25;}
-            else{rotationX = 25; rotationY = 25}
-            ctx.translate(snakeArray[i][0] + rotationX, snakeArray[i][1] + rotationY);
+        if (i === 0 && isDirectionSelectable == false) {
+            ctx.translate(snakeArray[i][2], snakeArray[i][3]);
+            console.log(snakeArray[i + 1][0], snakeArray[i + 1][1]);
 
         } else {
 
-            ctx.translate(snakeArray[i][0] , snakeArray[i][1] );
+            ctx.translate(snakeArray[i][0], snakeArray[i][1]);
+            console.log(snakeArray[i][0], snakeArray[i][1]);
         }
-        
 
-        if (prevDirection === snakeArray[i][4] || i === 0) {
+
+        if (nextDirection === snakeArray[i][4] || i === 0) {
 
             if (snakeArray[i][4] === 1) {
 
                 degree = 270 * Math.PI / 180;
                 ctx.rotate(degree);
-                prevDirection = snakeArray[i][4];
+                nextDirection = snakeArray[i][4];
             }
             else if (snakeArray[i][4] === 2) {
                 degree = 90 * Math.PI / 180;
                 ctx.rotate(degree);
-                prevDirection = snakeArray[i][4];
+                nextDirection = snakeArray[i][4];
             }
             else if (snakeArray[i][4] === 3) {
 
                 degree = Math.PI;
                 ctx.rotate(degree);
-                prevDirection = snakeArray[i][4];
+                nextDirection = snakeArray[i][4];
             }
             else {
-                prevDirection = 4;
+                nextDirection = 4;
             }
 
         } else {
 
-            if((prevDirection === 1 && snakeArray[i][4] === 4) || (snakeArray[i][4] === 2 && prevDirection === 3)) {
-                prevDirection = snakeArray [i][4];
+            if ((snakeArray[i][4] === 1 && nextDirection === 4) || (nextDirection === 2 && snakeArray[i][4] === 3)) {
+
+                nextDirection = snakeArray[i][4];
+
             }
-            else if((prevDirection === 1 && snakeArray[i][4] === 3) || (snakeArray[i][4] === 2 && prevDirection === 4) ){
+            else if ((snakeArray[i][4] === 1 && nextDirection === 3) || (nextDirection === 2 && snakeArray[i][4] === 4)) {
+
                 degree = 90 * Math.PI / 180;
                 ctx.rotate(degree);
-                prevDirection = snakeArray [i][4];
+                nextDirection = snakeArray[i][4];
             }
-            else if((prevDirection === 2 && snakeArray[i][4] === 4) || (snakeArray[i][4] === 1 && prevDirection === 3) ){
+            else if ((snakeArray[i][4] === 2 && nextDirection === 4) || (nextDirection === 1 && snakeArray[i][4] === 3)) {
                 degree = 270 * Math.PI / 180;
                 ctx.rotate(degree);
-                prevDirection = snakeArray [i][4];
+                nextDirection = snakeArray[i][4];
+
             }
-            else if((prevDirection === 2 && snakeArray[i][4] === 3) || (snakeArray[i][4] === 1 && prevDirection === 4) ){
+            else if ((snakeArray[i][4] === 2 && nextDirection === 3) || (nextDirection === 1 && snakeArray[i][4] === 4)) {
                 degree = 180 * Math.PI / 180;
                 ctx.rotate(degree);
-                prevDirection = snakeArray [i][4];
+                nextDirection = snakeArray[i][4];
+
             }
         }
-        ctx.drawImage(img, cutPositionX, cutPositionY, 50, 50, snakecoordinateX, snakeCoordinateY, longX, longY);
+
+        ctx.drawImage(img, cutPositionX, cutPositionY, 50, 50, snakeCoordinateX, snakeCoordinateY, longX, longY);
         ctx.restore();
     }
-    
+
 }
+
