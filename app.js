@@ -2,11 +2,6 @@ let canvas = document.getElementById("gameBoard");
 let ctx = canvas.getContext("2d");
 let body = document.getElementById("body");
 
-
-let startX = 100;
-let startY = 50;
-let endX = 200;
-let endY = 50;
 let playableCanvasHeightStart = 60;
 let playableCanvasHeight = 600
 let canvasHeight = 650;
@@ -72,12 +67,14 @@ function decidingCreation() {
         firstY = snakeArray[0][1];
         lastX = snakeArray[0][0];
         lastY = snakeArray[0][1];
+
     } else {
         firstX = snakeArray[0][2];
         firstY = snakeArray[0][3];
         lastX = snakeArray[0][2];
         lastY = snakeArray[0][3];
     }
+
     if (directionNumber === 1) {
         lastY -= 50;
     }
@@ -113,8 +110,9 @@ function snakeDrawer() {
     snakeArray.pop();
 
     addingSnakeSprite();
-    scoreTable();
     isGameFinished();
+    scoreTable();
+    
 
     isDirectionSelectable = true;
 }
@@ -152,7 +150,6 @@ function canvasPosition() {
     ctx.lineJoin = "round";
     ctx.lineWidth = 10;
     addingSnakeSprite();
-
     scoreTable();
 
 }
@@ -221,7 +218,6 @@ function grow() {
         newSnakeSegment[0] -= 50;
     }
     snakeArray.push(newSnakeSegment);
-
 
 }
 
@@ -357,17 +353,6 @@ function directionNumberChanger(num) {
     directionNumber = num;
 }
 
-function startGame() {
-
-    timer = setInterval(decidingCreation, gameSpeed);
-}
-
-window.onload = () => {
-
-    canvasPosition();
-    randomAppleCreator();
-}
-
 function addingSnakeSprite() {
 
     let img = document.getElementById("snakeSprite");
@@ -383,8 +368,10 @@ function addingSnakeSprite() {
         let degree = 0;
         let snakeCoordinateX = -25;
         let snakeCoordinateY = -25;
+        let translateX = 0;
+        let translateY = 0;
         if (i > 0) {
-            nextDirection = snakeArray[i - 1][4]
+            nextDirection = snakeArray[i - 1][4];
         }
 
         if (i === 0) {
@@ -399,8 +386,12 @@ function addingSnakeSprite() {
 
         ctx.save();
         if (i === 0 && isDirectionSelectable == false) {
-            ctx.translate(snakeArray[i][2], snakeArray[i][3]);
-            console.log(snakeArray[i + 1][0], snakeArray[i + 1][1]);
+            if(snakeArray[0][4] === 1){translateY = -50;}
+            else if(snakeArray[0][4] === 2){translateY = 50;}
+            else if(snakeArray[0][4] === 3){translateX = -50;}
+            else if(snakeArray[0][4] === 4){translateX = 50;}
+            ctx.translate(snakeArray[i + 1][0] + translateX, snakeArray[i + 1][1] + translateY);
+            console.log(snakeArray[0][0], snakeArray[0][1]);
 
         } else {
 
@@ -446,13 +437,15 @@ function addingSnakeSprite() {
                 nextDirection = snakeArray[i][4];
             }
             else if ((snakeArray[i][4] === 2 && nextDirection === 4) || (nextDirection === 1 && snakeArray[i][4] === 3)) {
+
                 degree = 270 * Math.PI / 180;
                 ctx.rotate(degree);
                 nextDirection = snakeArray[i][4];
 
             }
             else if ((snakeArray[i][4] === 2 && nextDirection === 3) || (nextDirection === 1 && snakeArray[i][4] === 4)) {
-                degree = 180 * Math.PI / 180;
+
+                degree =  Math.PI;
                 ctx.rotate(degree);
                 nextDirection = snakeArray[i][4];
 
@@ -463,5 +456,16 @@ function addingSnakeSprite() {
         ctx.restore();
     }
 
+}
+
+function startGame() {
+
+    timer = setInterval(decidingCreation, gameSpeed);
+}
+
+window.onload = () => {
+
+    canvasPosition();
+    randomAppleCreator();
 }
 
