@@ -151,6 +151,7 @@ function canvasPosition() {
     ctx.lineWidth = 10;
     addingSnakeSprite();
     scoreTable();
+    ctx.closePath();
 
 }
 
