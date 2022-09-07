@@ -2,7 +2,7 @@ let canvas = document.getElementById("gameBoard");
 let ctx = canvas.getContext("2d");
 let body = document.getElementById("body");
 
-let playableCanvasHeightStart = 60;
+let playableCanvasHeightStart = 50;
 let playableCanvasHeight = 600
 let canvasHeight = 650;
 let canvasWidth = 1050;
@@ -17,7 +17,7 @@ let timer;
 let directionNumber = 0;
 let maxEatenApple;
 let score = 0;
-let gameSpeed = 2000;
+let gameSpeed = 1000;
 let isDirectionSelectable = true;
 let nextDirection = 2;
 
@@ -62,18 +62,11 @@ function decidingCreation() {
     let lastX;
     let lastY;
 
-    if (snakeArray[0][4] !== directionNumber) {
-        firstX = snakeArray[0][0];
-        firstY = snakeArray[0][1];
-        lastX = snakeArray[0][0];
-        lastY = snakeArray[0][1];
 
-    } else {
-        firstX = snakeArray[0][2];
-        firstY = snakeArray[0][3];
-        lastX = snakeArray[0][2];
-        lastY = snakeArray[0][3];
-    }
+    firstX = snakeArray[0][2];
+    firstY = snakeArray[0][3];
+    lastX = snakeArray[0][2];
+    lastY = snakeArray[0][3];
 
     if (directionNumber === 1) {
         lastY -= 50;
@@ -112,7 +105,7 @@ function snakeDrawer() {
     addingSnakeSprite();
     isGameFinished();
     scoreTable();
-    
+
 
     isDirectionSelectable = true;
 }
@@ -227,33 +220,33 @@ function positionFormatter() {
     let firstX = snakeArray[0][0];
     let firstY = snakeArray[0][1];
     let lastX = snakeArray[0][2];
-    let lastY = snakeArray[0][3]
+    let lastY = snakeArray[0][3];
 
     if (snakeArray[0][2] > canvasWidth) {
-        lastX = 50;
-        firstX = 0;
+        lastX = 0;
+        firstX = -50;
 
     }
 
     else if (snakeArray[0][2] < 0) {
-        lastX = canvasWidth - 50;
-        firstX = canvasWidth;
+        lastX = canvasWidth;
+        firstX = canvasWidth + 50;
 
     }
 
     else if (snakeArray[0][3] > canvasHeight) {
-        lastY = playableCanvasHeightStart + 50;
-        firstY = playableCanvasHeightStart;
+        lastY = playableCanvasHeightStart;
+        firstY = playableCanvasHeightStart - 50;
 
     }
 
     else if (snakeArray[0][3] < playableCanvasHeightStart) {
-        lastY = canvasHeight - 50;
-        firstY = canvasHeight;
+        lastY = canvasHeight;
+        firstY = canvasHeight + 50;
 
     }
-    snakeArray.pop();
-    newSegment(firstX, firstY, lastX, lastY);
+    snakeArray.shift();
+    newSegment(firstX, firstY, lastX, lastY, snakeArray[0][4]);
 }
 
 function isGameFinished() {
@@ -277,8 +270,8 @@ function isGameFinished() {
 function snakeLocation(locationX, locationY, difference) {
 
     if (difference === 0) {
-        for (let i = 0; i < snakeArray.length; i++) {
-            if (snakeArray[i][0] === locationX && snakeArray[i][1] === locationY) {
+        for (let i = 1; i < snakeArray.length; i++) {
+            if (snakeArray[i][2] === locationX && snakeArray[i][3] === locationY) {
                 return true;
             }
         }
@@ -287,7 +280,7 @@ function snakeLocation(locationX, locationY, difference) {
 
     else {
         for (let i = 0; i < snakeArray.length; i++) {
-            if (Math.abs(snakeArray[i][0] - locationX) < difference && Math.abs(snakeArray[i][1] - locationY) < difference) {
+            if (Math.sqrt(Math.pow(Math.abs(snakeArray[i][0] - locationX),2)+ Math.pow(Math.abs(snakeArray[i][1] - locationY), 2)) < difference) {
                 return false;
             }
         }
@@ -316,8 +309,8 @@ function scoreTable() {
 
     ctx.beginPath();
     ctx.lineWidth = 3;
-    ctx.moveTo(0, 52);
-    ctx.lineTo(1075, 52);
+    ctx.moveTo(0, 50);
+    ctx.lineTo(1075, 50);
     ctx.stroke();
 
 }
@@ -358,9 +351,14 @@ function addingSnakeSprite() {
 
     let img = document.getElementById("snakeSprite");
     nextDirection = snakeArray[snakeArray.length - 2][4];
+    console.log(snakeArray[0][2], snakeArray[0][3]);
+    console.log(snakeArray[1][2], snakeArray[1][3]);
 
 
     for (let i = snakeArray.length - 1; 0 <= i; i--) {
+        if(i === snakeArray.length - 1){
+            console.log(snakeArray[i][4], snakeArray[i-1][4]);
+        }
 
         let cutPositionX = 50;
         let cutPositionY = 0;
@@ -369,8 +367,7 @@ function addingSnakeSprite() {
         let degree = 0;
         let snakeCoordinateX = -25;
         let snakeCoordinateY = -25;
-        let translateX = 0;
-        let translateY = 0;
+
         if (i > 0) {
             nextDirection = snakeArray[i - 1][4];
         }
@@ -386,19 +383,8 @@ function addingSnakeSprite() {
         }
 
         ctx.save();
-        if (i === 0 && isDirectionSelectable == false) {
-            if(snakeArray[0][4] === 1){translateY = -50;}
-            else if(snakeArray[0][4] === 2){translateY = 50;}
-            else if(snakeArray[0][4] === 3){translateX = -50;}
-            else if(snakeArray[0][4] === 4){translateX = 50;}
-            ctx.translate(snakeArray[i + 1][0] + translateX, snakeArray[i + 1][1] + translateY);
-            console.log(snakeArray[0][0], snakeArray[0][1]);
 
-        } else {
-
-            ctx.translate(snakeArray[i][0], snakeArray[i][1]);
-            console.log(snakeArray[i][0], snakeArray[i][1]);
-        }
+            ctx.translate(snakeArray[i][2] , snakeArray[i][3]);
 
 
         if (nextDirection === snakeArray[i][4] || i === 0) {
@@ -424,10 +410,32 @@ function addingSnakeSprite() {
                 nextDirection = 4;
             }
 
-        } else {
+        }
+        else if(i === snakeArray.length -1){
+
+            if(nextDirection === 4){
+                nextDirection = snakeArray[i][4];
+            }
+            else if (nextDirection === 3) {
+                degree = Math.PI;
+                ctx.rotate(degree);
+                nextDirection = snakeArray[i][4];
+            }
+            else if(nextDirection === 2) {
+                degree = 90 * Math.PI / 180;
+                ctx.rotate(degree);
+                nextDirection = snakeArray[i][4];
+            }
+            else {
+                degree = 270 * Math.PI / 180;
+                ctx.rotate(degree);
+                nextDirection = snakeArray[i][4];
+            }
+        } 
+        else {
 
             if ((snakeArray[i][4] === 1 && nextDirection === 4) || (nextDirection === 2 && snakeArray[i][4] === 3)) {
-
+                
                 nextDirection = snakeArray[i][4];
 
             }
@@ -446,7 +454,7 @@ function addingSnakeSprite() {
             }
             else if ((snakeArray[i][4] === 2 && nextDirection === 3) || (nextDirection === 1 && snakeArray[i][4] === 4)) {
 
-                degree =  Math.PI;
+                degree = Math.PI;
                 ctx.rotate(degree);
                 nextDirection = snakeArray[i][4];
 
