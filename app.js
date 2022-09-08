@@ -11,13 +11,15 @@ var snakeArray = [
     [50, 150, 50, 200, 2],
     [50, 100, 50, 150, 2]
 ];
+
+var blocks = [];
 let centerX = 0;
 let centerY = 0;
 let timer;
 let directionNumber = 0;
 let maxEatenApple;
 let score = 0;
-let gameSpeed = 1000;
+let gameSpeed = 500;
 let isDirectionSelectable = true;
 let nextDirection = 2;
 
@@ -95,9 +97,16 @@ function snakeDrawer() {
     ctx.drawImage(img, 0, 0);
     if (isAppleEaten()) {
         randomAppleCreator();
+        blockCreator();
         fasterGame();
+
+        if(score % 5 === 0){
+            randomBlockCreator();
+        }
+        
     } else {
         appleCreator();
+        blockCreator();
     }
 
     snakeArray.pop();
@@ -467,6 +476,28 @@ function addingSnakeSprite() {
 
 }
 
+function  randomBlockCreator() {
+    
+    let numberX = Math.ceil(Math.random() * (canvasWidth - 60));
+    let numberY = Math.ceil(Math.random() * (playableCanvasHeight - 60));
+    numberY += playableCanvasHeightStart;
+    if (snakeLocation(numberX, numberY, 75)) {
+        blocks.push([numberX,numberY]);
+        blockCreator();
+    } else {
+        randomBlockCreator();
+    }
+}
+
+function blockCreator() {
+
+    let img = document.getElementById("environment");
+
+    for(let i = 0; i< blocks.length; i++){
+        ctx.drawImage(img, 100, 0, 50, 50, blocks[i][0], blocks[i][1], 50, 50);
+    }
+}
+
 function startGame() {
 
     timer = setInterval(decidingCreation, gameSpeed);
@@ -476,5 +507,6 @@ window.onload = () => {
 
     canvasPosition();
     randomAppleCreator();
+    randomBlockCreator();
 }
 
