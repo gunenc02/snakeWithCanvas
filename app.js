@@ -13,13 +13,14 @@ var snakeArray = [
 ];
 
 var blocks = [];
+var eatenAppleLocation = [[]];
 let centerX = 0;
 let centerY = 0;
 let timer;
 let directionNumber = 0;
 let maxEatenApple;
 let score = 0;
-let gameSpeed = 2000;
+let gameSpeed = 500;
 let isDirectionSelectable = true;
 let sthEaten = false;
 let nextDirection = 2;
@@ -193,6 +194,7 @@ function isAppleEaten() {
     if (snakeArray[0][2] - centerX > 0 && snakeArray[0][2] - centerX < 57 && snakeArray[0][3] - centerY > 0 && snakeArray[0][3] - centerY < 62) {
         score++;
         sthEaten = true;
+        eatenAppleLocation.unshift([snakeArray[0][2],snakeArray[0][3]]);
         grow();
         return true;
     }
@@ -312,9 +314,23 @@ function snakeLocation(locationX, locationY, difference) {
                 return false;
             }
         }
+       if(blockChecker(locationX, locationY, difference)){
+        return false;
+       }
         return true
     }
 }
+
+function blockChecker(locationX, locationY, difference) {
+
+    for(let i = 0; i < blocks.length; i++){
+        if(Math.abs(locationX - blocks[i][0]) < 50  && Math.abs(locationY - blocks[i][1])){
+            return true
+        }
+    }
+    return false;
+}
+
 
 function scoreTable() {
 
@@ -379,6 +395,8 @@ function addingSnakeSprite() {
 
     let img = document.getElementById("snakeSprite");
     nextDirection = snakeArray[snakeArray.length - 2][4];
+    let eatenAppleIndex = 0;
+    
 
     for (let i = snakeArray.length - 1; 0 <= i; i--) {
         if(i === snakeArray.length - 1){
@@ -392,6 +410,7 @@ function addingSnakeSprite() {
         let degree = 0;
         let snakeCoordinateX = -25;
         let snakeCoordinateY = -25;
+        let eatEffectShouldBeRepresented = true;
 
         if (i > 0) {
             nextDirection = snakeArray[i - 1][4];
@@ -403,11 +422,18 @@ function addingSnakeSprite() {
                 cutPositionX = 250;
             }
         }
-        else if (i === snakeArray.length - 1) {
+        else if (i === (snakeArray.length - 1)) {
             cutPositionX = 100;
         }
         else if (nextDirection !== snakeArray[i][4]) {
             cutPositionX = 150;
+            eatEffectShouldBeRepresented = false;
+        }
+        
+        if(eatenAppleLocation.length !== 0 && snakeArray[i][2] === eatenAppleLocation[eatenAppleIndex][0] &&
+            snakeArray[i][3] === eatenAppleLocation[eatenAppleIndex][1] && i !== (snakeArray.length -1) && i !== 0 && eatEffectShouldBeRepresented){
+            cutPositionX = 200;
+            eatenAppleIndex++;
         }
 
         ctx.save();
@@ -492,6 +518,16 @@ function addingSnakeSprite() {
         ctx.drawImage(img, cutPositionX, cutPositionY, 50, 50, snakeCoordinateX, snakeCoordinateY, longX, longY);
         ctx.restore();
     }
+
+    formatEatenAppleLocationArray(eatenAppleIndex)
+}
+
+function formatEatenAppleLocationArray(size){
+    let newEatenAppleLocation = [[]];
+    for(let i = 1; i < size ; i++){
+        newEatenAppleLocation[i] = eatenAppleLocation[i];
+    }
+    eatenAppleLocation = newEatenAppleLocation;
 }
 
 function  randomBlockCreator() {
