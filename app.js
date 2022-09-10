@@ -13,7 +13,7 @@ var snakeArray = [
 ];
 
 var blocks = [];
-var eatenAppleLocation = [[]];
+var eatenAppleLocation = [[-500, -500]];
 let centerX = 0;
 let centerY = 0;
 let timer;
@@ -24,6 +24,7 @@ let gameSpeed = 500;
 let isDirectionSelectable = true;
 let sthEaten = false;
 let nextDirection = 2;
+let isEatenAppleShowed = false;
 
 body.addEventListener('keydown', function (e) {
 
@@ -195,6 +196,7 @@ function isAppleEaten() {
         score++;
         sthEaten = true;
         eatenAppleLocation.unshift([snakeArray[0][2],snakeArray[0][3]]);
+        isEatenAppleShowed = true;
         grow();
         return true;
     }
@@ -396,7 +398,6 @@ function addingSnakeSprite() {
 
     let img = document.getElementById("snakeSprite");
     nextDirection = snakeArray[snakeArray.length - 2][4];
-    let eatenAppleIndex = 0;
     
 
     for (let i = snakeArray.length - 1; 0 <= i; i--) {
@@ -409,6 +410,7 @@ function addingSnakeSprite() {
         let snakeCoordinateX = -25;
         let snakeCoordinateY = -25;
         let eatEffectShouldBeRepresented = true;
+        let notEntered = true;
 
         if (i > 0) {
             nextDirection = snakeArray[i - 1][4];
@@ -428,10 +430,10 @@ function addingSnakeSprite() {
             eatEffectShouldBeRepresented = false;
         }
         
-        if(eatenAppleLocation.length !== 0 && snakeArray[i][2] === eatenAppleLocation[eatenAppleIndex][0] &&
-            snakeArray[i][3] === eatenAppleLocation[eatenAppleIndex][1] && i !== (snakeArray.length -1) && i !== 0 && eatEffectShouldBeRepresented){
+        if( includes2D(snakeArray[i][2], snakeArray[i][3]) && eatEffectShouldBeRepresented &&
+            (i !== (snakeArray.length -1)) &&(i !== 0) ){
             cutPositionX = 200;
-            eatenAppleIndex++;
+            notEntered =  false;
         }
 
         ctx.save();
@@ -517,15 +519,20 @@ function addingSnakeSprite() {
         ctx.restore();
     }
 
-    formatEatenAppleLocationArray(eatenAppleIndex)
+    if(notEntered) {
+        eatenAppleLocation = [[-500, -500]];
+    }
+    
+    
 }
 
-function formatEatenAppleLocationArray(size){
-    let newEatenAppleLocation = [[]];
-    for(let i = 1; i < size ; i++){
-        newEatenAppleLocation[i] = eatenAppleLocation[i];
+function includes2D( headX, headY) {
+    for(let i = 0; i <eatenAppleLocation.length; ++i){
+        if(headX === eatenAppleLocation[i][0] && headY === eatenAppleLocation[i][1]) {
+            return true;
+        }
     }
-    eatenAppleLocation = newEatenAppleLocation;
+    return false;
 }
 
 function  randomBlockCreator() {
