@@ -118,14 +118,14 @@ function snakeDrawer() {
     addingSnakeSprite();
     scoreTable();
 
-
+    console.log(snakeArray[0][2], snakeArray[0][3], snakeArray[1][2], snakeArray[1][3]);
     isDirectionSelectable = true;
 }
 
 function randomAppleCreator() {
 
-    centerX = Math.ceil(Math.random() * (canvasWidth - 60));
-    centerY = Math.ceil(Math.random() * (playableCanvasHeight - 60));
+    centerX = Math.floor(Math.random() * 19) * 50;
+    centerY = Math.floor(Math.random() * 9) * 50;
     centerY += playableCanvasHeightStart;
     if (snakeLocation(centerX, centerY, 75)) {
         appleCreator();
@@ -169,7 +169,7 @@ function canvasPosition() {
 function appleCreator() {
 
     let img = document.getElementById("orange");
-    ctx.drawImage(img, centerX, centerY);
+    ctx.drawImage(img, centerX, centerY, 50, 50);
 }
 
 function newSegment(firstX, firstY, lastX, lastY, directionNumber) {
@@ -191,7 +191,7 @@ function newSegment(firstX, firstY, lastX, lastY, directionNumber) {
 
 function isAppleEaten() {
 
-    if (snakeArray[0][2] - centerX > 0 && snakeArray[0][2] - centerX < 57 && snakeArray[0][3] - centerY > 0 && snakeArray[0][3] - centerY < 62) {
+    if ((snakeArray[0][2] - centerX >= 0) && (snakeArray[0][2] - centerX <= 50) && (snakeArray[0][3] - centerY >= 0) && (snakeArray[0][3] - centerY <= 50) ) {
         score++;
         sthEaten = true;
         eatenAppleLocation.unshift([snakeArray[0][2],snakeArray[0][3]]);
@@ -242,6 +242,7 @@ function positionFormatter() {
     let lastX = snakeArray[0][2];
     let lastY = snakeArray[0][3];
 
+
     if (snakeArray[0][2] > canvasWidth) {
         lastX = 0;
         firstX = -50;
@@ -266,7 +267,7 @@ function positionFormatter() {
 
     }
     snakeArray.shift();
-    newSegment(firstX, firstY, lastX, lastY, snakeArray[0][4]);
+    snakeArray.unshift([firstX, firstY, lastX, lastY, directionNumber])
 }
 
 function isGameFinished() {
@@ -314,17 +315,17 @@ function snakeLocation(locationX, locationY, difference) {
                 return false;
             }
         }
-       if(blockChecker(locationX, locationY, difference)){
+       if(blockChecker(locationX, locationY)){
         return false;
        }
         return true
     }
 }
 
-function blockChecker(locationX, locationY, difference) {
+function blockChecker(locationX, locationY) {
 
     for(let i = 0; i < blocks.length; i++){
-        if(Math.abs(locationX - blocks[i][0]) < 50  && Math.abs(locationY - blocks[i][1])){
+        if(Math.abs(locationX - blocks[i][0]) < 50  && Math.abs(locationY - blocks[i][1]) < 50){
             return true
         }
     }
@@ -399,9 +400,6 @@ function addingSnakeSprite() {
     
 
     for (let i = snakeArray.length - 1; 0 <= i; i--) {
-        if(i === snakeArray.length - 1){
-            console.log(snakeArray[i][4], snakeArray[i-1][4]);
-        }
 
         let cutPositionX = 50;
         let cutPositionY = 0;
@@ -532,8 +530,8 @@ function formatEatenAppleLocationArray(size){
 
 function  randomBlockCreator() {
     
-    let numberX = Math.ceil(Math.random() * (canvasWidth - 60));
-    let numberY = Math.ceil(Math.random() * (playableCanvasHeight - 60));
+    let numberX = Math.floor(Math.random() * 19) * 50;
+    let numberY = Math.floor(Math.random() * 9) * 50;
     
     numberY += playableCanvasHeightStart;
     if (snakeLocation(numberX, numberY, 75) && 
