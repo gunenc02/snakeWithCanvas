@@ -16,6 +16,8 @@ var blocks = [];
 var eatenAppleLocation = [[-500, -500, 0]];
 let centerX = 0;
 let centerY = 0;
+let cherryCenterX;
+let cherryCenterY;
 let timer;
 let directionNumber = 0;
 let maxEatenApple;
@@ -24,7 +26,6 @@ let gameSpeed = 500;
 let isDirectionSelectable = true;
 let sthEaten = false;
 let nextDirection = 2;
-let isEatenAppleShowed = false;
 
 body.addEventListener('keydown', function (e) {
 
@@ -99,7 +100,7 @@ function snakeDrawer() {
     let img = document.getElementById("canvasBackground");
     ctx.drawImage(img, 0, 0);
     sthEaten = false;
-    if (isAppleEaten()) {
+    if (isAppleEaten() || isCherryEaten()) {
         randomAppleCreator();
         blockCreator();
         fasterGame();
@@ -173,6 +174,11 @@ function appleCreator() {
     ctx.drawImage(img, centerX, centerY, 50, 50);
 }
 
+function cherryCreator(){
+    let img = document.getElementById("cherry");
+    ctx.drawImage(img, cherryCenterX, cherryCenterY, 50, 50)
+}
+
 function newSegment(firstX, firstY, lastX, lastY, directionNumber) {
 
     let newSegment = [0, 0, 0, 0, 0];
@@ -195,8 +201,22 @@ function isAppleEaten() {
     if ((snakeArray[0][2] - centerX >= 0) && (snakeArray[0][2] - centerX <= 50) && (snakeArray[0][3] - centerY >= 0) && (snakeArray[0][3] - centerY <= 50)) {
         score++;
         sthEaten = true;
-        eatenAppleLocation.unshift([snakeArray[0][2], snakeArray[0][3], 0]);
-        isEatenAppleShowed = true;
+        eatenAppleLocation.unshift([snakeArray[0][2], snakeArray[0][3]]);
+        grow();
+        return true;
+    }
+
+    return false;
+}
+
+function isCherryEaten() {
+    
+    if ((snakeArray[0][2] - cherryCenterX >= 0) && (snakeArray[0][2] - cherryCenterX <= 50) && (snakeArray[0][3] - cherryCenterY >= 0) &&
+     (snakeArray[0][3] - cherryCenterY <= 50)) {
+        score++;
+        sthEaten = true;
+        eatenAppleLocation.unshift([snakeArray[0][2], snakeArray[0][3]]);
+        grow();
         grow();
         return true;
     }
@@ -399,7 +419,7 @@ function addingSnakeSprite() {
 
     let img = document.getElementById("snakeSprite");
     nextDirection = snakeArray[snakeArray.length - 2][4];
-    let notEntered = true;
+    eatenAppleLocationChecker(eatenAppleLocation);
 
     for (let i = snakeArray.length - 1; 0 <= i; i--) {
 
@@ -434,7 +454,6 @@ function addingSnakeSprite() {
         if (includes2D(snakeArray[i][2], snakeArray[i][3]) && eatEffectShouldBeRepresented &&
             (i !== (snakeArray.length - 1)) && (i !== 0)) {
             cutPositionX = 200;
-            notEntered = false;
         }
 
         ctx.save();
@@ -525,17 +544,25 @@ function addingSnakeSprite() {
 
 function includes2D(headX, headY) {
     for (let i = 0; i < eatenAppleLocation.length; ++i) {
-        eatenAppleLocation[i][2] = eatenAppleLocation[i][2] + 1;
-
-        if(eatenAppleLocation[i][2] === snakeArray.length - 2 && eatenAppleLocation[i][0] !== -500) {
-            eatenAppleLocation.splice(i,1);
-        }
-
         if (headX === eatenAppleLocation[i][0] && headY === eatenAppleLocation[i][1]) {
             return true;
         }
     }
     return false;
+}
+function eatenAppleLocationChecker(eatenAppleLocation) {
+    for(let i = 0; i < eatenAppleLocation.length; i++){
+        let dontInclude = true;
+        for(let j = 0; j < snakeArray.length; j++) {
+            if(eatenAppleLocation[i][0] === snakeArray[j][2] && eatenAppleLocation[i][1] === snakeArray[j][3]){
+                dontInclude = false;
+            }
+        }
+
+        if(dontInclude){
+            eatenAppleLocation.splice(i, 1);
+        }
+    }
 }
 
 function randomBlockCreator() {
