@@ -26,6 +26,9 @@ let gameSpeed = 500;
 let isDirectionSelectable = true;
 let sthEaten = false;
 let nextDirection = 2;
+let time = new Date();
+let beginningSecond;
+let createCherry;
 
 body.addEventListener('keydown', function (e) {
 
@@ -100,28 +103,42 @@ function snakeDrawer() {
     let img = document.getElementById("canvasBackground");
     ctx.drawImage(img, 0, 0);
     sthEaten = false;
-    if (isAppleEaten() || isCherryEaten()) {
-        randomAppleCreator();
-        blockCreator();
-        fasterGame();
-
-        if (score % 5 === 0) {
-            randomBlockCreator();
-        }
-
-    } else {
-        appleCreator();
-        blockCreator();
-    }
-
+    
+    snakeDrawerHelper()
     snakeArray.pop();
 
     isGameFinished();
     addingSnakeSprite();
     scoreTable();
+    isCherryTimeEnd();
 
     console.log(snakeArray[0][2], snakeArray[0][3], snakeArray[1][2], snakeArray[1][3]);
     isDirectionSelectable = true;
+}
+
+function snakeDrawerHelper(){
+
+    if (isAppleEaten() ) {
+        randomAppleCreator();
+        blockCreator();
+        fasterGame();
+    } 
+    else if(isCherryEaten() ) {
+        createCherry = false;
+        blockCreator();
+        fasterGame();
+    }
+    else {
+        appleCreator();
+        blockCreator();
+        cherryCreator();
+    }
+
+    if (score % 5 === 0) {
+        createCherry = true;
+        randomBlockCreator();
+        startCherry();
+    }
 }
 
 function randomAppleCreator() {
@@ -133,6 +150,19 @@ function randomAppleCreator() {
         appleCreator();
     } else {
         randomAppleCreator();
+    }
+}
+
+function randomCherryCreator(){
+
+    cherryCenterX = Math.floor(Math.random() *19) * 50;
+    cherryCenterY = Math.floor(Math.random() * 9) * 50;
+    cherryCenterY += playableCanvasHeightStart;
+
+    if(snakeLocation(cherryCenterX, cherryCenterY, 75)){
+        cherryCreator();
+    } else {
+        randomCherryCreator();
     }
 }
 
@@ -175,8 +205,10 @@ function appleCreator() {
 }
 
 function cherryCreator(){
-    let img = document.getElementById("cherry");
-    ctx.drawImage(img, cherryCenterX, cherryCenterY, 50, 50)
+    if(createCherry){
+        let img = document.getElementById("cherry");
+        ctx.drawImage(img, cherryCenterX, cherryCenterY, 50, 50);
+    }
 }
 
 function newSegment(firstX, firstY, lastX, lastY, directionNumber) {
@@ -213,7 +245,7 @@ function isCherryEaten() {
     
     if ((snakeArray[0][2] - cherryCenterX >= 0) && (snakeArray[0][2] - cherryCenterX <= 50) && (snakeArray[0][3] - cherryCenterY >= 0) &&
      (snakeArray[0][3] - cherryCenterY <= 50)) {
-        score++;
+        score += 2;
         sthEaten = true;
         eatenAppleLocation.unshift([snakeArray[0][2], snakeArray[0][3]]);
         grow();
@@ -565,6 +597,7 @@ function eatenAppleLocationChecker(eatenAppleLocation) {
     }
 }
 
+
 function randomBlockCreator() {
 
     let numberX = Math.floor(Math.random() * 19) * 50;
@@ -601,3 +634,17 @@ window.onload = () => {
     randomBlockCreator();
 }
 
+function startCherry() {
+    
+    beginningSecond = time.getSeconds();
+    randomCherryCreator();                                  
+}
+
+function isCherryTimeEnd(){
+
+    let endSecond = time.getSeconds();
+
+    if(Math.abs(beginningSecond - endSecond) > 10) {
+        createCherry = false;
+    }
+}
