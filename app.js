@@ -26,9 +26,8 @@ let gameSpeed = 500;
 let isDirectionSelectable = true;
 let sthEaten = false;
 let nextDirection = 2;
-let time = new Date();
 let beginningSecond;
-let createCherry;
+let createCherry = false;
 
 body.addEventListener('keydown', function (e) {
 
@@ -103,7 +102,7 @@ function snakeDrawer() {
     let img = document.getElementById("canvasBackground");
     ctx.drawImage(img, 0, 0);
     sthEaten = false;
-    
+
     snakeDrawerHelper()
     snakeArray.pop();
 
@@ -116,23 +115,27 @@ function snakeDrawer() {
     isDirectionSelectable = true;
 }
 
-function snakeDrawerHelper(){
+function snakeDrawerHelper() {
 
-    if (isAppleEaten() ) {
+    if (isAppleEaten()) {
+        shouldGameChange();
         randomAppleCreator();
-        blockCreator();
         fasterGame();
-    } 
-    else if(isCherryEaten() ) {
+    }
+    else if (isCherryEaten()) {
         createCherry = false;
-        blockCreator();
+        appleCreator();
         fasterGame();
     }
     else {
-        appleCreator();
-        blockCreator();
-        cherryCreator();
+        appleCreator();            
     }
+
+    blockCreator();
+    cherryCreator();
+}
+
+function shouldGameChange() {
 
     if (score % 5 === 0) {
         createCherry = true;
@@ -153,13 +156,13 @@ function randomAppleCreator() {
     }
 }
 
-function randomCherryCreator(){
+function randomCherryCreator() {
 
-    cherryCenterX = Math.floor(Math.random() *19) * 50;
+    cherryCenterX = Math.floor(Math.random() * 19) * 50;
     cherryCenterY = Math.floor(Math.random() * 9) * 50;
     cherryCenterY += playableCanvasHeightStart;
 
-    if(snakeLocation(cherryCenterX, cherryCenterY, 75)){
+    if (snakeLocation(cherryCenterX, cherryCenterY, 75)) {
         cherryCreator();
     } else {
         randomCherryCreator();
@@ -204,8 +207,8 @@ function appleCreator() {
     ctx.drawImage(img, centerX, centerY, 50, 50);
 }
 
-function cherryCreator(){
-    if(createCherry){
+function cherryCreator() {
+    if (createCherry) {
         let img = document.getElementById("cherry");
         ctx.drawImage(img, cherryCenterX, cherryCenterY, 50, 50);
     }
@@ -242,14 +245,16 @@ function isAppleEaten() {
 }
 
 function isCherryEaten() {
-    
+
     if ((snakeArray[0][2] - cherryCenterX >= 0) && (snakeArray[0][2] - cherryCenterX <= 50) && (snakeArray[0][3] - cherryCenterY >= 0) &&
-     (snakeArray[0][3] - cherryCenterY <= 50)) {
+        (snakeArray[0][3] - cherryCenterY <= 50)) {
         score += 2;
         sthEaten = true;
         eatenAppleLocation.unshift([snakeArray[0][2], snakeArray[0][3]]);
         grow();
         grow();
+        cherryCenterX = -100;
+        cherryCenterY = -100;
         return true;
     }
 
@@ -268,22 +273,22 @@ function grow() {
 
     if (snakeArray[lastIndex][4] === 1) {
 
-        newSnakeSegment[1] += 50;
+        newSnakeSegment[3] += 50;
     }
 
-    else if (snakeArray[lastIndex - 1][4] === 2) {
+    else if (snakeArray[lastIndex][4] === 2) {
 
-        newSnakeSegment[1] -= 50;
+        newSnakeSegment[3] -= 50;
     }
 
     else if (snakeArray[lastIndex][4] === 3) {
 
-        newSnakeSegment[0] += 50;
+        newSnakeSegment[2] += 50;
     }
 
     else if (snakeArray[lastIndex][4] === 4) {
 
-        newSnakeSegment[0] -= 50;
+        newSnakeSegment[2] -= 50;
     }
     snakeArray.push(newSnakeSegment);
 
@@ -583,15 +588,15 @@ function includes2D(headX, headY) {
     return false;
 }
 function eatenAppleLocationChecker(eatenAppleLocation) {
-    for(let i = 0; i < eatenAppleLocation.length; i++){
+    for (let i = 0; i < eatenAppleLocation.length; i++) {
         let dontInclude = true;
-        for(let j = 0; j < snakeArray.length; j++) {
-            if(eatenAppleLocation[i][0] === snakeArray[j][2] && eatenAppleLocation[i][1] === snakeArray[j][3]){
+        for (let j = 0; j < snakeArray.length; j++) {
+            if (eatenAppleLocation[i][0] === snakeArray[j][2] && eatenAppleLocation[i][1] === snakeArray[j][3]) {
                 dontInclude = false;
             }
         }
 
-        if(dontInclude){
+        if (dontInclude) {
             eatenAppleLocation.splice(i, 1);
         }
     }
@@ -635,16 +640,28 @@ window.onload = () => {
 }
 
 function startCherry() {
-    
-    beginningSecond = time.getSeconds();
-    randomCherryCreator();                                  
+
+    let date = new Date();
+    beginningSecond = date.getSeconds();
+    randomCherryCreator();
 }
 
-function isCherryTimeEnd(){
+function isCherryTimeEnd() {
 
-    let endSecond = time.getSeconds();
-
-    if(Math.abs(beginningSecond - endSecond) > 10) {
-        createCherry = false;
+    let date2 = new Date();
+    let endSecond = date2.getSeconds();
+    if (beginningSecond < 50) {
+        if (Math.abs(beginningSecond - endSecond) > 10) {
+            createCherry = false;
+            cherryCenterX = -100;
+            cherryCenterY = -100;
+        }
+    }
+    else{
+        if(endSecond - beginningSecond > 10 && Math.abs(beginningSecond - endSecond - 50) ){
+            createCherry = false;
+            cherryCenterX = -100;
+            cherryCenterY = -100;
+        }
     }
 }
