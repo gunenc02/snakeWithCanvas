@@ -233,7 +233,7 @@ function newSegment(firstX, firstY, lastX, lastY, directionNumber) {
 
 function isAppleEaten() {
 
-    if ((snakeArray[0][2] - centerX >= 0) && (snakeArray[0][2] - centerX <= 50) && (snakeArray[0][3] - centerY >= 0) && (snakeArray[0][3] - centerY <= 50)) {
+    if ((snakeArray[0][2] - centerX >= 25) && (snakeArray[0][2] - centerX <= 75) && (snakeArray[0][3] - centerY >= 25) && (snakeArray[0][3] - centerY <= 75)) {
         score++;
         sthEaten = true;
         eatenAppleLocation.unshift([snakeArray[0][2], snakeArray[0][3]]);
@@ -351,15 +351,15 @@ function snakeLocation(locationX, locationY, difference) {
 
     if (difference === 0) {
         for (let i = 1; i < snakeArray.length; i++) {
-            if ((snakeArray[i][2] === locationX && snakeArray[i][3] === locationY)) {
+            if ((snakeArray[i][2] === locationX   && snakeArray[i][3] === locationY )) {
                 sthEaten = true;
                 return true;
             }
         }
 
         for (let i = 0; i < blocks.length; i++) {
-            if (locationX - blocks[i][0] <= 50 && locationX - blocks[i][0] >= -10 &&
-                locationY - blocks[i][1] <= 50 && locationY - blocks[i][1] >= -10) {
+            if (locationX - blocks[i][0] < 25 && locationX - blocks[i][0] > -25 &&
+                locationY - blocks[i][1] < 25 && locationY - blocks[i][1] > -25) {
                 sthEaten = true;
                 return true;
             }
@@ -384,7 +384,7 @@ function snakeLocation(locationX, locationY, difference) {
 function blockChecker(locationX, locationY) {
 
     for (let i = 0; i < blocks.length; i++) {
-        if (Math.abs(locationX - blocks[i][0]) < 50 && Math.abs(locationY - blocks[i][1]) < 50) {
+        if (Math.abs(locationX - blocks[i][0]) < 25 && Math.abs(locationY - blocks[i][1]) < 25) {
             return true
         }
     }
@@ -495,7 +495,7 @@ function addingSnakeSprite() {
 
         ctx.save();
 
-        ctx.translate(snakeArray[i][2], snakeArray[i][3]);
+        ctx.translate(snakeArray[i][2] -25, snakeArray[i][3]-25);
 
 
         if (nextDirection === snakeArray[i][4] || i === 0) {
